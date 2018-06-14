@@ -1,18 +1,48 @@
-import math
-import random
-import os
-from os import listdir, remove, rename
 import argparse
-from tqdm import tqdm
+import json
+import math
+import os
+import random
+import numpy as np
+from os import listdir, remove, rename
 
 from google_images_download import google_images_download
+from keras.utils import Sequence
 from PIL import Image, ImageDraw
+from tqdm import tqdm
 
 DOWNLOAD_DIR = "../downloads"
-OUT_DIR = "../images"
-OUT_SIZE = (256, 256)
+OUT_FILE = "../dataset.json"
+OUT_SIZE = (128, 128)
 
 # Downloads images
+
+
+class Images(Sequence):
+
+    def __init__(self, dataset, batchsize):
+        random.shuffle(dataset)
+        self.dataset = dataset
+        self.batch_size = batchsize
+
+    def __len__(self):
+        return int(np.ceil(len(self.dataset) / float(self.batch_size)))
+
+    def __getitem__(self, idx):
+        batch = self.dataset[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_y = [Image.open(DOWNLOAD_DIR+'/'+file_name[0]).resize((128, 128))
+                   for file_name in batch]
+        batch_x = []
+        for image, data in zip(batch_y, batch):
+            image = image.copy()
+            draw = ImageDraw.Draw(image)
+            lines = data[1]
+            for line in lines:
+                draw.line((line[1], line[2], line[3], line[4]),
+                          (255, 255, 255), line[0])
+            batch_x.append(np.array(image).astype('float32')/255)
+        batch_y = [np.array(y).astype('float32')/255 for y in batch_y]
+        return np.array(batch_x), np.array(batch_y)
 
 
 def download_images(download_dir: str, out_size: tuple, times: int):
@@ -44,52 +74,27 @@ def download_images(download_dir: str, out_size: tuple, times: int):
             remove(filepath)
 
 
-def modify_images(download_dir: str, out_dir: str, out_size: tuple, times: int):
-    if not os.path.isdir(out_dir):
-        os.mkdir(out_dir)
-
-    n_shapes = (2, 6)
-    line_size = (15, 150)
-    line_width = (4, 10)
-    ellipse_height = (15, 30)
-    ellipse_width = (15, 30)
+def modify_images(download_dir: str, out_file: str, out_size: tuple, times: int):
+    ret = []
+    n_shapes = (1, 3)
+    line_size = (4, 16)
+    width = 1
     for filename in tqdm(listdir(download_dir)):
-        filepath = download_dir+"/"+filename
-        for i in range(0, times):
-            image = Image.open(filepath)
-            draw = ImageDraw.Draw(image)
+        versions_list = []
+        for _ in range(0, times):
+            shape_list = []
             num_shapes = random.randint(*n_shapes)
             for _ in range(0, num_shapes):
-                shape = random.randint(0, 1)
-                # Lines
-                if shape == 0:
-                    size = random.randint(*line_size)
-                    line_angle = random.uniform(0, 2*math.pi)
-                    width = random.randint(*line_width)
-                    line_x1 = random.randint(0, out_size[0])
-                    line_y1 = random.randint(0, out_size[0])
-                    line_x2 = line_x1 + size*math.cos(line_angle)
-                    line_y2 = line_y1 + size*math.sin(line_angle)
-                    draw.line((line_x1, line_y1, line_x2, line_y2),
-                              (255, 255, 255),
-                              width
-                              )
-                # ellipses
-                if shape == 1:
-                    width = random.randint(*ellipse_width)
-                    height = random.randint(*ellipse_height)
-                    ellipse_x1 = random.randint(0, out_size[0])
-                    ellipse_y1 = random.randint(0, out_size[0])
-                    ellipse_x2 = ellipse_x1 + width
-                    ellipse_y2 = ellipse_y1 + height
-                    draw.ellipse((ellipse_x1,
-                                  ellipse_y1,
-                                  ellipse_x2,
-                                  ellipse_y2),
-                                 (255, 255, 255))
-
-            image.save(out_dir+"/"+str(filename).split('.')
-                       [0]+"_"+str(i)+'.jpg', "JPEG")
+                size = random.randint(*line_size)
+                # line_angle = random.uniform(0, 2*math.pi)
+                line_x1 = random.randint(0, out_size[0])
+                line_y1 = random.randint(0, out_size[0])
+                line_x2 = random.randint(0, out_size[0])
+                line_y2 = random.randint(0, out_size[0])
+                shape_list.append((width, line_x1, line_x2, line_y1, line_y2))
+            versions_list.append(shape_list)
+        ret.extend([(filename, version) for version in versions_list])
+    json.dump(ret, open(out_file, 'w'))
 
 
 if __name__ == '__main__':
@@ -102,4 +107,4 @@ if __name__ == '__main__':
     if ARGS.download:
         download_images(DOWNLOAD_DIR, OUT_SIZE, ARGS.download)
     if ARGS.dataset:
-        modify_images(DOWNLOAD_DIR, OUT_DIR, OUT_SIZE, ARGS.dataset,)
+        modify_images(DOWNLOAD_DIR, OUT_FILE, OUT_SIZE, ARGS.dataset,)
