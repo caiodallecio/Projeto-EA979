@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     imgs = Images(json.load(open('../test.json')), 1, '../test')
     for i in range(10):
-        a, b = imgs[i]
+        a, _ = imgs[i]
         # display original
         ax = plt.subplot(2, 10, i + 1)
         plt.imshow(a.reshape(256, 256, 3))
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         ax.get_yaxis().set_visible(False)
 
         # display reconstruction
-        b = autoencoder.predict(b)
+        b = autoencoder.predict(a)
         ax = plt.subplot(2, 10, i + 1 + 10)
         plt.imshow(b.reshape(256, 256, 3))
         ax.get_xaxis().set_visible(False)
