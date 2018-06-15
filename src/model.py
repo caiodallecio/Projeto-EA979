@@ -68,6 +68,7 @@ def create_model(input_shape):
 
     network.add(layers.Deconv2D(3, (3, 3), activation='relu', padding='same'))
     network.add(layers.UpSampling2D())
+
     network.add(layers.Deconv2D(
         3, (3, 3), activation='sigmoid', padding='same', input_shape=input_shape))
 

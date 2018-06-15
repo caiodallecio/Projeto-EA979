@@ -59,30 +59,30 @@ def create_model(input_shape):
     network = models.Sequential()
     network.add(layers.Conv2D(16, (3, 3), activation='relu',
                               padding='same', input_shape=input_shape))
-    network.add(layers.MaxPool2D((2,2),padding=same))
+    network.add(layers.MaxPool2D((2, 2), padding='same'))
     network.add(layers.Conv2D(32, (3, 3), activation='relu',
                               padding='same', input_shape=input_shape))
-    network.add(layers.MaxPool2D((2,2),padding=same))
+    network.add(layers.MaxPool2D((2, 2), padding='same'))
     network.add(layers.Conv2D(32, (3, 3), activation='relu',
                               padding='same', input_shape=input_shape))
-    network.add(layers.MaxPool2D((2,2),padding=same))
+    network.add(layers.MaxPool2D((2, 2), padding='same'))
     network.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
- 	network.add(layers.MaxPool2D((2,2),padding=same))
+    network.add(layers.MaxPool2D((2, 2), padding='same'))
     network.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
     network.add(layers.Flatten())
-    network.add(layers.Dense(1000, activation='relu'))
-    network.add(layers.Reshape((16, 16, 64)))
+    network.add(layers.Dense(8*8*64, activation='relu'))
+    network.add(layers.Reshape((8, 8, 64)))
     network.add(layers.Conv2D(64, (3, 3), activation='relu',
                               padding='same', input_shape=input_shape))
-    network.add(layers.UpSampling2D(2,2))
+    network.add(layers.UpSampling2D((2, 2)))
     network.add(layers.Conv2D(64, (3, 3), activation='relu',
                               padding='same', input_shape=input_shape))
-    network.add(layers.UpSampling2D(2,2))
+    network.add(layers.UpSampling2D((2, 2)))
     network.add(layers.Conv2D(32, (3, 3), activation='relu',
                               padding='same', input_shape=input_shape))
-    network.add(layers.UpSampling2D(2,2))
+    network.add(layers.UpSampling2D((2, 2)))
     network.add(layers.Conv2D(16, (3, 3), activation='relu', padding='same'))
- 	network.add(layers.UpSampling2D(2,2))
+    network.add(layers.UpSampling2D((2, 2)))
     network.add(layers.Conv2D(3, (3, 3), activation='sigmoid', padding='same'))
 
     network.compile(optimizer='adam', loss='mse')
@@ -96,8 +96,8 @@ if __name__ == '__main__':
     # labels = import_train_labels()
     # dataset = create_memory_dataset(images, labels)
     # train, test = split_dataset(dataset)
-    if os.path.isfile('autoencoder.h5'):
-        autoencoder = load_model('autoencoder.h5')
+    if os.path.isfile('autoencoder2.h5'):
+        autoencoder = load_model('autoencoder2.h5')
     else:
         autoencoder = create_model((128, 128, 3))
 
@@ -155,4 +155,4 @@ if __name__ == '__main__':
         ax.get_yaxis().set_visible(False)
     plt.show()
 
-    autoencoder.save('autoencoder.h5')
+    autoencoder.save('autoencoder2.h5')
