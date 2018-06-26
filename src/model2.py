@@ -1,15 +1,16 @@
+import json
 import os
 from random import shuffle
-import matplotlib.pyplot as plt
 
 import keras as k
+import matplotlib.pyplot as plt
 import numpy as np
-import json
 from keras import backend, layers, models
-from keras.callbacks import TensorBoard
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 from keras.models import load_model
 from PIL import Image, ImageDraw
 from tqdm import tqdm
+
 from genset import Images
 
 
@@ -52,16 +53,23 @@ if __name__ == '__main__':
     else:
         autoencoder = create_model((256, 256, 3))
 
+    train = Images(json.load(open('../dataset.json')), 10, '../downloads')
+    validation = Images(json.load(open('../test.json')), 10, '../test')
+    test = Images(json.load(open('../test.json')), 1, '../test')
+
     autoencoder.fit_generator(
-        Images(json.load(open('../dataset.json')), 10, '../downloads'),
-        validation_data=Images(json.load(open('../test.json')), 10, '../test'),
+        train,
+        validation_data=validation,
+        callbacks=[
+            ModelCheckpoint('checkpoint.hdf5', save_best_only=True),
+            ReduceLROnPlateau(patience=5)
+        ],
         epochs=30,
         use_multiprocessing=True,
-        workers=4)
+        workers=os.cpu_count())
 
-    imgs = Images(json.load(open('../test.json')), 1, '../test')
     for i in range(10):
-        a, _ = imgs[i]
+        a, _ = test[i]
         # display original
         ax = plt.subplot(2, 10, i + 1)
         plt.imshow(a.reshape(256, 256, 3))

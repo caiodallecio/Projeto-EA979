@@ -22,18 +22,19 @@ OUT_SIZE = (256, 256)
 
 class Images(Sequence):
 
-    def __init__(self, dataset, batchsize, path):
+    def __init__(self, dataset, batchsize, path, shape=(256,256)):
         random.shuffle(dataset)
         self.dataset = dataset
         self.batch_size = batchsize
         self.path = path
+        self.shape = shape
 
     def __len__(self):
         return int(np.ceil(len(self.dataset) / float(self.batch_size)))
 
     def __getitem__(self, idx):
         batch = self.dataset[idx * self.batch_size:(idx + 1) * self.batch_size]
-        batch_y = [Image.open(self.path+'/'+file_name[0]).resize((256, 256))
+        batch_y = [Image.open(self.path+'/'+file_name[0])
                    for file_name in batch]
         batch_x = []
         for image, data in zip(batch_y, batch):
@@ -42,9 +43,9 @@ class Images(Sequence):
             lines = data[1]
             for line in lines:
                 draw.line((line[1], line[2], line[3], line[4]),
-                          (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), line[0])
-            batch_x.append(np.array(image).astype('float32')/255)
-        batch_y = [np.array(y).astype('float32')/255 for y in batch_y]
+                          (255,255,255), line[0])
+            batch_x.append(np.array(image.resize(self.shape, Image.LANCZOS)).astype('float32')/255)
+        batch_y = [np.array(y.resize(self.shape, Image.LANCZOS)).astype('float32')/255 for y in batch_y]
         return np.array(batch_x), np.array(batch_y)
 
 
