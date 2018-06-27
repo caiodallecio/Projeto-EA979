@@ -87,7 +87,7 @@ def modify_images(download_dir: str, out_file: str, out_size: tuple, times: int)
             shape_list = []
             num_shapes = random.randint(*n_shapes)
             for _ in range(0, num_shapes):
-                width = random.randint(5, 8)
+                width = random.randint(1, 8)
                 line_x1 = random.randint(0, out_size[0])
                 line_y1 = random.randint(0, out_size[0])
                 line_x2 = random.randint(0, out_size[0])
