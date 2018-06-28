@@ -61,10 +61,16 @@
 
     incanvas.addEventListener("mouseup",function(e){
       paint = false;
+      clickX = new Array();
+      clickY = new Array();
+      clickDrag = new Array();
     });
 
     incanvas.addEventListener("mouseleave",function(e){
       paint = false;
+      clickX = new Array();
+      clickY = new Array();
+      clickDrag = new Array();
     }); 
 
     function addClick(x, y, dragging)
