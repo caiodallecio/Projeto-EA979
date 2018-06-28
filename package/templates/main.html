@@ -25,7 +25,7 @@
     var outcanvas = document.getElementById('outputCanvas');
     var outctx = outcanvas.getContext('2d');
     
-    const model = tf.loadModel("https://caiodallecio.github.io/Projeto-EA979/package/static/autoencoder/model.json");
+    const model = tf.loadModel("http://localhost:8080{{url_for('static', filename='autoencoder/model.json')}}");
     var loaded_model = undefined;
     
     var loadbutton = document.getElementById('imageLoader')
@@ -61,9 +61,15 @@
 
     incanvas.addEventListener("mouseup",function(e){
       paint = false;
+      clickX = new Array();
+      clickY = new Array();
+      clickDrag = new Array();
     });
 
     incanvas.addEventListener("mouseleave",function(e){
+      clickX = new Array();
+      clickY = new Array();
+      clickDrag = new Array();
       paint = false;
     }); 
 
@@ -79,7 +85,7 @@
       
       inctx.strokeStyle = "#FFFFFF";
       inctx.lineJoin = "square";
-      inctx.lineWidth = 5;
+      inctx.lineWidth = 4;
           
       for(var i=0; i < clickX.length; i++) {		
         inctx.beginPath();
@@ -92,6 +98,7 @@
          inctx.closePath();
          inctx.stroke();
       }
+     
     }
 
     function handleImage(e){
@@ -118,7 +125,7 @@
       input = tf.fromPixels(image).reshape([1,256,256,3])
       input = tf.cast(input,'float32')
       input = input.div(tf.scalar(255.0))
-      output = loaded_model.predict(input)
+      output = loaded_model.predict(input,{batchSize: 1})
       output = output.mul(tf.scalar(255.0))
       output = tf.cast(output,'int32').reshape([256,256,3])
       return output
@@ -128,6 +135,7 @@
       result = predictImage(inctx.getImageData(0,0,256,256))
       outctx.clearRect(0, 0, outcanvas.width, outcanvas.height);
       tf.toPixels(result,outcanvas)
+      tf.toPixels(result,incanvas)
     }
   
   </script>

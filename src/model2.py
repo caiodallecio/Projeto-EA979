@@ -6,6 +6,7 @@ import keras as k
 import matplotlib.pyplot as plt
 import numpy as np
 from keras import backend, layers, models
+from keras.utils import plot_model
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 from keras.models import load_model
 from PIL import Image, ImageDraw
@@ -53,16 +54,16 @@ if __name__ == '__main__':
     else:
         autoencoder = create_model((256, 256, 3))
 
-    train = Images(json.load(open('../dataset.json')), 10, '../downloads')
+    train = Images(json.load(open('../dataset.json')), 8, '../downloads')
     validation = Images(json.load(open('../test.json')), 10, '../test')
     test = Images(json.load(open('../test.json')), 1, '../test')
-
+    plot_model(autoencoder, to_file='model.png',show_shapes=True)
     autoencoder.fit_generator(
         train,
         validation_data=validation,
         callbacks=[
-            ModelCheckpoint('checkpoint.hdf5', save_best_only=True),
-            ReduceLROnPlateau(patience=5)
+            ModelCheckpoint('checkpoint.hdf5',monitor='loss', save_best_only=True, verbose=1),
+            ReduceLROnPlateau(patience=1, monitor='loss', verbose=1)
         ],
         epochs=30,
         use_multiprocessing=True,

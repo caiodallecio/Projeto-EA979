@@ -34,7 +34,7 @@ class Images(Sequence):
 
     def __getitem__(self, idx):
         batch = self.dataset[idx * self.batch_size:(idx + 1) * self.batch_size]
-        batch_y = [Image.open(self.path+'/'+file_name[0])
+        batch_y = [Image.open(self.path+'/'+file_name[0]).convert('RGB')
                    for file_name in batch]
         batch_x = []
         for image, data in zip(batch_y, batch):
@@ -80,14 +80,14 @@ def download_images(download_dir: str, out_size: tuple, times: int):
 
 def modify_images(download_dir: str, out_file: str, out_size: tuple, times: int):
     ret = []
-    n_shapes = (3, 7)
+    n_shapes = (1, 7)
     for filename in tqdm(listdir(download_dir)):
         versions_list = []
         for _ in range(0, times):
             shape_list = []
             num_shapes = random.randint(*n_shapes)
             for _ in range(0, num_shapes):
-                width = random.randint(5, 8)
+                width = random.randint(3, 8)
                 line_x1 = random.randint(0, out_size[0])
                 line_y1 = random.randint(0, out_size[0])
                 line_x2 = random.randint(0, out_size[0])
@@ -109,4 +109,4 @@ if __name__ == '__main__':
         download_images(DOWNLOAD_DIR, OUT_SIZE, ARGS.download)
     if ARGS.dataset:
         modify_images(DOWNLOAD_DIR, OUT_FILE, OUT_SIZE, ARGS.dataset,)
-        modify_images(TEST_DIR, TEST_FILE, OUT_SIZE, 5)
+        modify_images(TEST_DIR, TEST_FILE, OUT_SIZE, ARGS.dataset)

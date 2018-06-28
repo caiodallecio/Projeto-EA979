@@ -20,7 +20,7 @@ if __name__ == '__main__':
     for i in range(10):
         X, Y = imgs[i]
         # display original
-        ax = plt.subplot(3, 10, i + 1)
+        ax = plt.subplot(2, 10, i + 1)
         plt.imshow(X.reshape(256, 256, 3))
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
@@ -30,20 +30,10 @@ if __name__ == '__main__':
 
         # display reconstruction
         b = autoencoder.predict(X)
-        ax = plt.subplot(3, 10, i + 1 + 10)
+        ax = plt.subplot(2, 10, i + 1 + 10)
         plt.imshow(b.reshape(256, 256, 3))
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
 
-        print(2,autoencoder.evaluate(b,Y))
-
-        # display reconstruction
-        c = autoencoder.predict(b)
-        ax = plt.subplot(3, 10, i + 1 + 20)
-        plt.imshow(c.reshape(256, 256, 3))
-        ax.get_xaxis().set_visible(False)
-        ax.get_yaxis().set_visible(False)
-
-        print(3,autoencoder.evaluate(c,Y))
 
     plt.show()
