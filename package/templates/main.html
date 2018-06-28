@@ -61,9 +61,15 @@
 
     incanvas.addEventListener("mouseup",function(e){
       paint = false;
+      clickX = new Array();
+      clickY = new Array();
+      clickDrag = new Array();
     });
 
     incanvas.addEventListener("mouseleave",function(e){
+      clickX = new Array();
+      clickY = new Array();
+      clickDrag = new Array();
       paint = false;
     }); 
 
@@ -79,7 +85,7 @@
       
       inctx.strokeStyle = "#FFFFFF";
       inctx.lineJoin = "square";
-      inctx.lineWidth = 5;
+      inctx.lineWidth = 4;
           
       for(var i=0; i < clickX.length; i++) {		
         inctx.beginPath();
@@ -92,6 +98,7 @@
          inctx.closePath();
          inctx.stroke();
       }
+     
     }
 
     function handleImage(e){
@@ -128,7 +135,7 @@
       result = predictImage(inctx.getImageData(0,0,256,256))
       outctx.clearRect(0, 0, outcanvas.width, outcanvas.height);
       tf.toPixels(result,outcanvas)
-      //tf.toPixels(result,incanvas)
+      tf.toPixels(result,incanvas)
     }
   
   </script>
